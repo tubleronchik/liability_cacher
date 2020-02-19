@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+import rospy
+
+from robonomics_liability.msg import Liability
+
+
+class CacherNode:
+
+    def __init__(self):
+        rospy.init_node("cacher")
+        rospy.loginfo("Launching cacher node...")
+
+        rospy.Subscriber("/liability/incoming", Liability, self.incoming_liability)
+
+        rospy.loginfo("Cacher node is launched!")
+
+    def incoming_liability(self, liability: Liability):
+        pass
+
+    def spin(self):
+        rospy.spin()
+
+
+if __name__ == "__main__":
+    CacherNode().spin()
+

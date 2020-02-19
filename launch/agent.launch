@@ -1,0 +1,6 @@
+<launch>
+
+    <node ns="liability_cacher" name="cacher" pkg="liability_cacher" type="cacher_node" output="screen">
+    </node>
+
+</launch>
