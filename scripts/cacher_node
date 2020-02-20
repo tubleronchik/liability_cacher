@@ -39,8 +39,8 @@ class CacherNode:
                 validator   = liability.validator.address,
                 validatorFee = liability.validatorFee.uint256
                 )
-        session.add(l)
-        session.commit()
+        self.session.add(l)
+        self.session.commit()
         rospy.loginfo(l)
 
     def spin(self):
