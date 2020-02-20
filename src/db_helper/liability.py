@@ -29,6 +29,6 @@ class Liability(Base):
 
 
     def __repr__(self):
-       return "<Liability (address='%s', model='%s', lighthouse='%s', result='%s')>" %
+       return "<Liability (address='%s', model='%s', lighthouse='%s', result='%s')>" % \
                         (self.address, self.model, self.lighthouse, self.result)
 
