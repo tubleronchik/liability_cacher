@@ -14,6 +14,8 @@ mkRosPackage rec {
   propagatedBuildInputs = [
     robonomics_comm
     python3Packages.pinatapy
+    python3Packages.sqlalchemy
+    python3Packages.psycopg2
   ];
 
   meta = with stdenv.lib; {

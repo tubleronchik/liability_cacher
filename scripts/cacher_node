@@ -2,6 +2,10 @@
 import rospy
 
 from robonomics_liability.msg import Liability
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from db_helper.liability import Liability as L, Base
 
 
 class CacherNode:
@@ -10,12 +14,33 @@ class CacherNode:
         rospy.init_node("cacher")
         rospy.loginfo("Launching cacher node...")
 
+        # ROS Topics
         rospy.Subscriber("/liability/incoming", Liability, self.incoming_liability)
+
+        # Database
+        engine = create_engine(rospy.get_param("~db_credentials")[:-1], echo=True)
+        Base.metadata.create_all(engine)
+        self.session = sessionmaker(bind=engine)()
 
         rospy.loginfo("Cacher node is launched!")
 
     def incoming_liability(self, liability: Liability):
-        pass
+        rospy.loginfo(liability)
+        l = L(
+                address     = liability.address.address,
+                model       = liability.model.multihash,
+                objective   = liability.objective.multihash,
+                result      = liability.result.multihash,
+                promisee    = liability.promisee.address,
+                promisor    = liability.promisor.address,
+                lighthouse  = liability.lighthouse.address,
+                token       = liability.token.address,
+                cost        = liability.cost.uint256,
+                sender      = liability.sender.address,
+                )
+        session.add(l)
+        session.commit()
+        rospy.loginfo(l)
 
     def spin(self):
         rospy.spin()
