@@ -36,7 +36,8 @@ class CacherNode:
                 lighthouse  = liability.lighthouse.address,
                 token       = liability.token.address,
                 cost        = liability.cost.uint256,
-                sender      = liability.sender.address,
+                validator   = liability.validator.address,
+                validatorFee = liability.validatorFee.uint256
                 )
         session.add(l)
         session.commit()
