@@ -16,6 +16,8 @@ mkRosPackage rec {
     python3Packages.pinatapy
     python3Packages.sqlalchemy
     python3Packages.psycopg2
+    python3Packages.graphene
+    python3Packages.flask
   ];
 
   meta = with stdenv.lib; {

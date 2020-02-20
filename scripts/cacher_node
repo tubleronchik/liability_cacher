@@ -2,6 +2,7 @@
 import rospy
 
 from robonomics_liability.msg import Liability
+from robonomics_msgs.msg import Result
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -16,6 +17,7 @@ class CacherNode:
 
         # ROS Topics
         rospy.Subscriber("/liability/incoming", Liability, self.incoming_liability)
+        rospy.Subscriber("/liability/infochan/incoming/result", Result, self.incoming_result)
 
         # Database
         engine = create_engine(rospy.get_param("~db_credentials")[:-1], echo=True)
@@ -42,6 +44,12 @@ class CacherNode:
         self.session.add(l)
         self.session.commit()
         rospy.loginfo(l)
+
+    def incoming_result(self, result: Result):
+        rospy.loginfo(result)
+        q = self.session.query(L).filter(L.address == result.liability.address).update({L.result: result.result.multihash})
+        self.session.commit()
+        rospy.loginfo(q)
 
     def spin(self):
         rospy.spin()
