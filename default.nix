@@ -11,13 +11,15 @@ mkRosPackage rec {
 
   src = ./.;
 
-  propagatedBuildInputs = [
+  propagatedBuildInputs = with python3Packages; [
     robonomics_comm
-    python3Packages.pinatapy
-    python3Packages.sqlalchemy
-    python3Packages.psycopg2
-    python3Packages.graphene
-    python3Packages.flask
+    pinatapy
+    sqlalchemy
+    psycopg2
+    graphene
+    flask
+    flask-graphql
+    graphene-sqlalchemy
   ];
 
   meta = with stdenv.lib; {

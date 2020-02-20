@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 import graphene
-from graphene_sqlalchemy import SQLAlchemyObjectType
+from graphene import relay
+from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
-from db_helper.liability import Liability as L
+from db_helper.liability import Liability as LiabilityModel
 
 class LiabilitySchema(SQLAlchemyObjectType):
     class Meta:
-        model = L
+        model = LiabilityModel
+        interfaces = (relay.Node, )
 
 class Query(graphene.ObjectType):
-    liabilities = graphene.List(LiabilitySchema)
-
-    def resolve_liabilities(self, info):
-        query = LiabilitySchema.get_query(info)  # SQLAlchemy query
-        return query.all()
+    node = relay.Node.Field()
+    liabilities = SQLAlchemyConnectionField(LiabilitySchema)
 
 schema = graphene.Schema(query=Query)
 

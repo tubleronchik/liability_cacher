@@ -4,9 +4,9 @@ import rospy
 from robonomics_liability.msg import Liability
 from robonomics_msgs.msg import Result
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
-from db_helper.liability import Liability as L, Base
+from db_helper.liability import Liability as L, Base, engine, db_session
 
 
 class CacherNode:
@@ -20,9 +20,8 @@ class CacherNode:
         rospy.Subscriber("/liability/infochan/incoming/result", Result, self.incoming_result)
 
         # Database
-        engine = create_engine(rospy.get_param("~db_credentials")[:-1], echo=True)
         Base.metadata.create_all(engine)
-        self.session = sessionmaker(bind=engine)()
+        self.session = db_session()
 
         rospy.loginfo("Cacher node is launched!")
 
