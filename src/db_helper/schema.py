@@ -14,19 +14,25 @@ class Query(graphene.ObjectType):
     # node = relay.Node.Field()
     # liabilities = SQLAlchemyConnectionField(LiabilitySchema)
 
-    liabilities = graphene.List(LiabilitySchema, model=graphene.String(default_value=None, required=False))
+    liabilities = graphene.List(LiabilitySchema,
+                    model=graphene.String(required=False),
+                    limit=graphene.Int(required=False))
 
     def resolve_liabilities(self, info, **kwargs):
         model = kwargs.get('model', None)
-        print(model)
+        limit = kwargs.get("limit", None)
+
         q = LiabilitySchema.get_query(info)
-        print(dir(q))
-        if model is None:
-            return q.all()
 
-        print(q.filter(LiabilityModel.model == model))
+        if model is not None:
+            q = q.filter(LiabilityModel.model == model)
 
-        return q.filter(LiabilityModel.model == model).limit(1)
+        if limit is not None:
+            q = q.limit(limit)
+        else:
+            q = q.all()
+
+        return q
 
 schema = graphene.Schema(query=Query)
 
