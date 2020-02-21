@@ -1,9 +1,11 @@
 # Liability Cacher
 
 It listens to all new liability events and stores them into a database.
-Provides (GraphQL)[https://graphql.org/] API for data requests.
+Provides [GraphQL](https://graphql.org/) API for data requests.
 
 ## GraphQL Schema
+
+http://endpoint/graphql
 
 ```
 {
