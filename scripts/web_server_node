@@ -2,7 +2,7 @@
 import rospy
 from flask import Flask, request
 from flask_cors import CORS
-from db_helper.schema import schema
+from helpers.schema import schema
 
 from flask_graphql import GraphQLView
 

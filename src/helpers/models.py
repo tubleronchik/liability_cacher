@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 
 
 Base = declarative_base()
@@ -22,9 +22,9 @@ class Liability(Base):
     id = Column(Integer, primary_key=True)
 
     address = Column(String)
-    model = Column(String)
-    objective = Column(String)
-    result = Column(String)
+    model = relationship("Multihash", backref="liability")
+    objective = relationship("Multihash", backref="liability")
+    result = relationship("Multihash", backref="liability")
     promisee = Column(String)
     promisor = Column(String)
     lighthouse = Column(String)
@@ -37,22 +37,6 @@ class Liability(Base):
     # isFinalized = Column(Boolean)
 
     timestamp = Column(TIMESTAMP(True), server_default=func.now())
-
-    def __get__(self, instance, owner):
-        return {
-                self.address,
-                self.model,
-                self.objective,
-                self.result,
-                self.promisee,
-                self.promisor,
-                self.lighthouse,
-                self.token,
-                self.token,
-                self.cost,
-                self.validator,
-                self.validatorFee
-                }
 
     def __repr__(self):
         return json.dumps({
@@ -69,4 +53,11 @@ class Liability(Base):
             "validator": self.validator,
             "validatorFee": self.validatorFee
             })
+
+class Multihash(Base):
+    __tablename__ = "multihash"
+
+    hash = Column(String, primary_key=True)
+    data = Column(String)
+    address = Column(String, ForeignKey("liability.address"))
 

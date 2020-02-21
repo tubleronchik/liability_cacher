@@ -21,6 +21,7 @@ mkRosPackage rec {
     flask-graphql
     flask-cors
     graphene-sqlalchemy
+    ipfshttpclient
   ];
 
   meta = with stdenv.lib; {

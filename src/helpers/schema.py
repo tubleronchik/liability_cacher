@@ -3,7 +3,7 @@ import graphene
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
-from db_helper.liability import Liability as LiabilityModel
+from helpers.liability import Liability as LiabilityModel
 
 class LiabilitySchema(SQLAlchemyObjectType):
     class Meta:
