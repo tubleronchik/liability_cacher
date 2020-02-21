@@ -13,6 +13,8 @@ app.add_url_rule(
 
 
 if __name__ == '__main__':
+    host = rospy.get_param("/liability_cacher/web_server/host")
     port = rospy.get_param("/liability_cacher/web_server/server_port")
-    app.run(port=int(port))
+
+    app.run(host=host, port=int(port))
 

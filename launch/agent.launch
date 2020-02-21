@@ -1,6 +1,7 @@
 <launch>
     <arg name="db_credentials" default="" />
     <arg name="server_port" default="11234" />
+    <arg name="host" default="0.0.0.0" />
 
     <node ns="liability_cacher" name="cacher" pkg="liability_cacher" type="cacher_node" output="screen">
         <param name="db_credentials" textfile="$(arg db_credentials)" />
@@ -8,6 +9,7 @@
 
     <node ns="liability_cacher" name="web_server" pkg="liability_cacher" type="web_server_node" output="screen">
         <param name="db_credentials" textfile="$(arg db_credentials)" />
+        <param name="host" value="$(arg host)" />
         <param name="server_port" value="$(arg server_port)" />
     </node>
 
