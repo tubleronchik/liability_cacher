@@ -19,6 +19,7 @@ mkRosPackage rec {
     graphene
     flask
     flask-graphql
+    flask-cors
     graphene-sqlalchemy
   ];
 
