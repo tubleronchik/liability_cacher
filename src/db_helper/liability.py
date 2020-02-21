@@ -1,4 +1,5 @@
 import rospy
+import json
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean
@@ -37,8 +38,35 @@ class Liability(Base):
 
     timestamp = Column(TIMESTAMP(True), server_default=func.now())
 
+    def __get__(self, instance, owner):
+        return {
+                self.address,
+                self.model,
+                self.objective,
+                self.result,
+                self.promisee,
+                self.promisor,
+                self.lighthouse,
+                self.token,
+                self.token,
+                self.cost,
+                self.validator,
+                self.validatorFee
+                }
 
     def __repr__(self):
-       return "<Liability (address='%s', model='%s', lighthouse='%s', result='%s')>" % \
-                        (self.address, self.model, self.lighthouse, self.result)
+        return json.dumps({
+            "id": self.id,
+            "address": self.address,
+            "model": self.model,
+            "objective": self.objective,
+            "result": self.result,
+            "promisee": self.promisee,
+            "promisor": self.promisor,
+            "lighthouse": self.lighthouse,
+            "token": self.token,
+            "cost": self.cost,
+            "validator": self.validator,
+            "validatorFee": self.validatorFee
+            })
 
