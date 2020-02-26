@@ -21,18 +21,21 @@ class Liability(Base):
 
     id = Column(Integer, primary_key=True)
 
-    address = Column(String, unique=True)
-    model = relationship("Multihash")
-    objective = relationship("Multihash")
-    result = relationship("Multihash")
-    promisee = Column(String)
-    promisor = Column(String)
-    lighthouse = Column(String)
+    address         = Column(String, unique=True)
+    model           = Column(String)
+    model_data      = Column(String)
+    objective       = Column(String)
+    objective_data  = Column(String)
+    result          = Column(String)
+    result_data     = Column(String)
+    promisee        = Column(String)
+    promisor        = Column(String)
+    lighthouse      = Column(String)
     # lighthouseFee = Column(String)
-    token = Column(String)
-    cost = Column(String)
-    validator = Column(String)
-    validatorFee = Column(String)
+    token           = Column(String)
+    cost            = Column(String)
+    validator       = Column(String)
+    validatorFee    = Column(String)
     # isSuccess = Column(Boolean)
     # isFinalized = Column(Boolean)
 
@@ -53,11 +56,4 @@ class Liability(Base):
             "validator": self.validator,
             "validatorFee": self.validatorFee
             })
-
-class Multihash(Base):
-    __tablename__ = "multihash"
-
-    hash = Column(String, primary_key=True)
-    data = Column(String)
-    address = Column(String, ForeignKey("liabilities.address"))
 

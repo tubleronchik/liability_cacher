@@ -8,7 +8,7 @@ from ipfs_common.ipfs_rosbag import IpfsRosBag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from helpers.models import Liability as L, Multihash as M
+from helpers.models import Liability as L
 from helpers.models import Base, engine, db_session
 from helpers.ipfs import ipfs_download
 from helpers.robonomics_model import RobonomicsModel as RM
@@ -33,20 +33,21 @@ class CacherNode:
     def incoming_liability(self, liability: Liability):
         rospy.loginfo(liability)
 
-        model = RM(liability.model.multihash)
+        rm = RM(liability.model.multihash)
 
         l = L(
-                address     = liability.address.address,
-                model       = model.multihash,
-                objective   = model.objective(liability.objective),
-                # result      = model.result(liability.result),
-                promisee    = liability.promisee.address,
-                promisor    = liability.promisor.address,
-                lighthouse  = liability.lighthouse.address,
-                token       = liability.token.address,
-                cost        = liability.cost.uint256,
-                validator   = liability.validator.address,
-                validatorFee = liability.validatorFee.uint256
+                address         = liability.address.address,
+                model           = liability.model.multihash,
+                model_data      = rm.model_data,
+                objective       = liability.objective.multihash,
+                objective_data  = rm.objective(liability.objective),
+                promisee        = liability.promisee.address,
+                promisor        = liability.promisor.address,
+                lighthouse      = liability.lighthouse.address,
+                token           = liability.token.address,
+                cost            = liability.cost.uint256,
+                validator       = liability.validator.address,
+                validatorFee    = liability.validatorFee.uint256
                 )
 
         self.session.add(l)

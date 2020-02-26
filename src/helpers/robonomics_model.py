@@ -5,30 +5,28 @@ import base64
 from ipfs_common.msg import Multihash
 
 from ipfs_common.ipfs_rosbag import IpfsRosBag
-from helpers.models import Multihash as M
 from helpers.ipfs import ipfs_download
 
 class RobonomicsModel:
     def __init__(self, ipfs_hash: str):
         self.model_hash = ipfs_hash
-        data = self._download_model()
-
-        self.multihash = M(hash = self.model_hash, data = data)
+        self.model_data = self._download_model()
 
     def _download_model(self) -> str:
         try:
             data = ipfs_download(self.model_hash)
             self.valid = True
             self.rosbag_scheme = json.loads(data)["rosbag_scheme"]
-        except TimeoutError as e:
+        except:
             data = ""
             self.valid = False
 
+        print(f"Data: {data}\nValid: {self.valid}")
         return data
 
-    def objective(self, objective_hash: Multihash) -> M:
+    def objective(self, objective_hash: Multihash) -> str:
+        data = {}
         if self.valid:
-            data = {}
             bag = IpfsRosBag(multihash = objective_hash)
 
             for kbag, vbag in bag.messages:
@@ -45,19 +43,14 @@ class RobonomicsModel:
                     for v in vbag:
                         data[kbag].append(self._ipfs_str(v))
 
-            obj = M(hash = objective_hash, data = json.dumps(data))
-        else:
-            obj = M(hash = objective_hash, data = "")
+        return json.dumps(data)
 
-        return obj
-
-    def result(self, result_hash: Multihash) -> M:
+    def result(self, result_hash: Multihash) -> str:
+        data = {}
         if self.valid:
             pass
-        else:
-            obj = M(hash = result_hash, data = "")
 
-        return obj
+        return json.dumps(data)
 
     def _topic_type(self, topic: str) -> str:
         for s in self.rosbag_scheme:
