@@ -4,12 +4,14 @@ import json
 
 from robonomics_liability.msg import Liability
 from robonomics_msgs.msg import Result
+from ipfs_common.ipfs_rosbag import IpfsRosBag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from helpers.models import Liability as L, Multihash as M
 from helpers.models import Base, engine, db_session
 from helpers.ipfs import ipfs_download
+from helpers.robonomics_model import RobonomicsModel as RM
 
 
 class CacherNode:
@@ -31,11 +33,13 @@ class CacherNode:
     def incoming_liability(self, liability: Liability):
         rospy.loginfo(liability)
 
-        model = self.resolve_model(liability.model.multihash)
-        objective = self.resolve_rosbag(model, liability.objective.multihash)
+        model = RM(liability.model.multihash)
 
         l = L(
                 address     = liability.address.address,
+                model       = model.multihash,
+                objective   = model.objective(liability.objective),
+                # result      = model.result(liability.result),
                 promisee    = liability.promisee.address,
                 promisor    = liability.promisor.address,
                 lighthouse  = liability.lighthouse.address,
@@ -45,35 +49,9 @@ class CacherNode:
                 validatorFee = liability.validatorFee.uint256
                 )
 
-        l.model.append(model)
-        l.objective.append(objective)
-
         self.session.add(l)
         self.session.commit()
         rospy.loginfo(l)
-
-    def resolve_model(self, model: str) -> M:
-        try:
-            data = ipfs_download(model)
-        except TimeoutError as e:
-            data = ""
-
-        return M(hash = model, data = data)
-
-    def resolve_rosbag(self, model: M, ipfs_hash: str) -> M:
-        try:
-            model_scheme = json.loads(model.data)
-            rosbag_scheme = model_scheme["rosbag_scheme"]
-            bag = IpfsRosBag(multihash=Multihash(ipfs_hash))
-            data = self.apply_scheme(rosbag_scheme, bag.messages)
-        except ValueError as e:
-            rospy.loginfo("Model is not valid JSON")
-            data = ""
-
-        return M(hash = ipfs_hash, data = data)
-
-    def apply_scheme(self, rosbag: dict, messages: dict) -> dict:
-        pass
 
     def incoming_result(self, result: Result):
         rospy.loginfo(result)

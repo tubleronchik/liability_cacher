@@ -2,7 +2,7 @@ import rospy
 import json
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean
+from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
@@ -21,10 +21,10 @@ class Liability(Base):
 
     id = Column(Integer, primary_key=True)
 
-    address = Column(String)
-    model = relationship("Multihash", backref="liability")
-    objective = relationship("Multihash", backref="liability")
-    result = relationship("Multihash", backref="liability")
+    address = Column(String, unique=True)
+    model = relationship("Multihash")
+    objective = relationship("Multihash")
+    result = relationship("Multihash")
     promisee = Column(String)
     promisor = Column(String)
     lighthouse = Column(String)
@@ -59,5 +59,5 @@ class Multihash(Base):
 
     hash = Column(String, primary_key=True)
     data = Column(String)
-    address = Column(String, ForeignKey("liability.address"))
+    address = Column(String, ForeignKey("liabilities.address"))
 
