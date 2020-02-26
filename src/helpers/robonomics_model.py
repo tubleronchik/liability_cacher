@@ -29,19 +29,24 @@ class RobonomicsModel:
         if self.valid:
             bag = IpfsRosBag(multihash = objective_hash)
 
-            for kbag, vbag in bag.messages:
+            for kbag, vbag in bag.messages.items():
+                print(f"{kbag} -> {vbag}")
                 ttype = self._topic_type(kbag)
 
                 if ttype == "String":
-                    data[kbag] = vbag
+                    data[kbag] = []
+                    for v in vbag:
+                        data[kbag].append(v.data)
                 elif ttype == "IPFSBin":
                     data[kbag] = []
                     for v in vbag:
-                        data[kbag].append(self._ipfs_bin(v))
+                        data[kbag].append(self._ipfs_bin(v.data))
                 elif ttype == "IPFSStr":
                     data[kbag] = []
                     for v in vbag:
-                        data[kbag].append(self._ipfs_str(v))
+                        data[kbag].append(self._ipfs_str(v.data))
+
+        print(data)
 
         return json.dumps(data)
 
@@ -54,7 +59,7 @@ class RobonomicsModel:
 
     def _topic_type(self, topic: str) -> str:
         for s in self.rosbag_scheme:
-            if topic.endswith(s["/suffix"]):
+            if topic.endswith(s["suffix"]):
                 return s["data_type"]
 
     def _ipfs_str(self, ipfs_hash: str) -> str:
@@ -68,7 +73,7 @@ class RobonomicsModel:
     def _ipfs_bin(self, ipfs_hash: str) -> str:
         try:
             data = ipfs_download(ipfs_hash, "rb")
-            data = base64.b64encode(data)
+            data = base64.b64encode(data).decode('utf-8')
         except TimeoutError as e:
             data = ""
 
