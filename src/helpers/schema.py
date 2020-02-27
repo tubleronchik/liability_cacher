@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import graphene
-from graphene import relay
+from graphene import relay, Argument
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 
 from helpers.models import Liability as LiabilityModel
@@ -8,31 +8,34 @@ from helpers.models import Liability as LiabilityModel
 class LiabilitySchema(SQLAlchemyObjectType):
     class Meta:
         model = LiabilityModel
-        # interfaces = (relay.Node, )
+        interfaces = (relay.Node, )
 
 class Query(graphene.ObjectType):
     # node = relay.Node.Field()
-    # liabilities = SQLAlchemyConnectionField(LiabilitySchema)
+    # print(dir(LiabilitySchema))
+    liabilities = SQLAlchemyConnectionField(LiabilitySchema, sort=Argument(LiabilitySchema.sort_enum()))
 
-    liabilities = graphene.List(LiabilitySchema,
-                    model=graphene.String(required=False),
-                    limit=graphene.Int(required=False))
+    # liabilities = graphene.List(LiabilitySchema,
+    #                 model=graphene.String(required=False),
+    #                 limit=graphene.Int(required=False))
 
-    def resolve_liabilities(self, info, **kwargs):
-        model = kwargs.get('model', None)
-        limit = kwargs.get("limit", None)
+    # def resolve_liabilities(self, info, **kwargs):
+    #     model = kwargs.get('model', None)
+    #     limit = kwargs.get("limit", None)
 
-        q = LiabilitySchema.get_query(info)
+    #     print(LiabilitySchema.sort_enum())
 
-        if model is not None:
-            q = q.filter(LiabilityModel.model == model)
+    #     q = LiabilitySchema.get_query(info)
 
-        if limit is not None:
-            q = q.limit(limit)
-        else:
-            q = q.all()
+    #     if model is not None:
+    #         q = q.filter(LiabilityModel.model == model)
 
-        return q
+    #     if limit is not None:
+    #         q = q.limit(limit)
+    #     else:
+    #         q = q.all()
+
+    #     return q
 
 schema = graphene.Schema(query=Query)
 
