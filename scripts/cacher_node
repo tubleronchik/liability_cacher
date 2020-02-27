@@ -58,9 +58,12 @@ class CacherNode:
         rospy.loginfo(result)
         q = self.session.query(L).filter(L.address == result.liability.address) #.update({L.result: result.result.multihash})
 
-        l = q.one()
-        rm = RM(l.model, model_data = l.model_data)
-        q.update({L.result: result.result.multihash, L.result_data: rm.result(result.result)})
+        try:
+            l = q.one()
+            rm = RM(l.model, model_data = l.model_data)
+            q.update({L.result: result.result.multihash, L.result_data: rm.result(result.result)})
+        except:
+            print("No results")
 
         self.session.commit()
 
