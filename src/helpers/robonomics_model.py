@@ -8,9 +8,15 @@ from ipfs_common.ipfs_rosbag import IpfsRosBag
 from helpers.ipfs import ipfs_download
 
 class RobonomicsModel:
-    def __init__(self, ipfs_hash: str):
+    def __init__(self, ipfs_hash: str, model_data: str = None):
         self.model_hash = ipfs_hash
-        self.model_data = self._download_model()
+
+        if model_data is not None:
+            self.model_data = model_data
+            self.valid = True
+            self.rosbag_scheme = json.loads(model_data)["rosbag_scheme"]
+        else:
+            self.model_data = self._download_model()
 
     def _download_model(self) -> str:
         try:
@@ -53,7 +59,26 @@ class RobonomicsModel:
     def result(self, result_hash: Multihash) -> str:
         data = {}
         if self.valid:
-            pass
+            bag = IpfsRosBag(multihash = result_hash)
+
+            for kbag, vbag in bag.messages.items():
+                print(f"{kbag} -> {vbag}")
+                ttype = self._topic_type(kbag)
+
+                if ttype == "String":
+                    data[kbag] = []
+                    for v in vbag:
+                        data[kbag].append(v.data)
+                elif ttype == "IPFSBin":
+                    data[kbag] = []
+                    for v in vbag:
+                        data[kbag].append(self._ipfs_bin(v.data))
+                elif ttype == "IPFSStr":
+                    data[kbag] = []
+                    for v in vbag:
+                        data[kbag].append(self._ipfs_str(v.data))
+
+        print(data)
 
         return json.dumps(data)
 

@@ -56,9 +56,13 @@ class CacherNode:
 
     def incoming_result(self, result: Result):
         rospy.loginfo(result)
-        q = self.session.query(L).filter(L.address == result.liability.address).update({L.result: result.result.multihash})
+        q = self.session.query(L).filter(L.address == result.liability.address) #.update({L.result: result.result.multihash})
+
+        l = q.one()
+        rm = RM(l.model, model_data = l.model_data)
+        q.update({L.result: result.result.multihash, L.result_data: rm.result(result.result)})
+
         self.session.commit()
-        rospy.loginfo(q)
 
     def spin(self):
         rospy.spin()
