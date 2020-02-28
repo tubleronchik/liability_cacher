@@ -1,41 +1,44 @@
 #!/usr/bin/env python3
 import graphene
-from graphene import relay, Argument
+from graphene import relay, Argument, Connection
 from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+from graphene_sqlalchemy_filter import FilterableConnectionField, FilterSet
 
 from helpers.models import Liability as LiabilityModel
+
+
+class LiabilityFilter(FilterSet):
+    class Meta:
+        model = LiabilityModel
+        fields = {
+                "address":  [...],
+                "model": [...],
+                "objective": [...],
+                "result": [...],
+                "promisee": [...],
+                "promisor": [...],
+                "lighthouse": [...],
+                "token": [...],
+                "cost": [...],
+                "validator": [...],
+                "validatorFee": [...],
+                }
+
+class MyFilterableConnectionField(FilterableConnectionField):
+    filters = {LiabilityModel: LiabilityFilter()}
 
 class LiabilitySchema(SQLAlchemyObjectType):
     class Meta:
         model = LiabilityModel
         interfaces = (relay.Node, )
+        connection_field_factory = MyFilterableConnectionField.factory
+
+class LiabilityConnection(Connection):
+    class Meta:
+        node = LiabilitySchema
 
 class Query(graphene.ObjectType):
-    # node = relay.Node.Field()
-    # print(dir(LiabilitySchema))
-    liabilities = SQLAlchemyConnectionField(LiabilitySchema, sort=Argument(LiabilitySchema.sort_enum()))
-
-    # liabilities = graphene.List(LiabilitySchema,
-    #                 model=graphene.String(required=False),
-    #                 limit=graphene.Int(required=False))
-
-    # def resolve_liabilities(self, info, **kwargs):
-    #     model = kwargs.get('model', None)
-    #     limit = kwargs.get("limit", None)
-
-    #     print(LiabilitySchema.sort_enum())
-
-    #     q = LiabilitySchema.get_query(info)
-
-    #     if model is not None:
-    #         q = q.filter(LiabilityModel.model == model)
-
-    #     if limit is not None:
-    #         q = q.limit(limit)
-    #     else:
-    #         q = q.all()
-
-    #     return q
+    liabilities = MyFilterableConnectionField(LiabilityConnection)
 
 schema = graphene.Schema(query=Query)
 
