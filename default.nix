@@ -23,6 +23,7 @@ mkRosPackage rec {
     graphene-sqlalchemy
     graphene-sqlalchemy-filter
     ipfshttpclient
+    sentry-sdk
   ];
 
   meta = with stdenv.lib; {

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import rospy
+import sentry_sdk
+sentry_sdk.init(rospy.get_param("/liability_cacher/cacher/sentry_key"))
+
 import json
 
 from robonomics_liability.msg import Liability
