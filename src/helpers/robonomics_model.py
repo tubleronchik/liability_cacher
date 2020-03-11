@@ -90,7 +90,7 @@ class RobonomicsModel:
     def _ipfs_str(self, ipfs_hash: str) -> str:
         try:
             data = ipfs_download(ipfs_hash)
-        except TimeoutError as e:
+        except:
             data = ""
 
         return data
@@ -99,7 +99,7 @@ class RobonomicsModel:
         try:
             data = ipfs_download(ipfs_hash, "rb")
             data = base64.b64encode(data).decode('utf-8')
-        except TimeoutError as e:
+        except:
             data = ""
 
         return data
