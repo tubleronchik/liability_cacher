@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 
 
 Base = declarative_base()
-engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1], echo=True, pool_size=20, max_overflow=0)
+engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1], echo=True, pool_size=20, max_overflow=-1)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                     autoflush=False,
                                     bind=engine))
