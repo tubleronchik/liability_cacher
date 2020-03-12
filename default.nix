@@ -1,6 +1,6 @@
 { stdenv
 , mkRosPackage
-, robonomics_comm
+, robonomics_comm-nightly
 , python3Packages
 }:
 
@@ -12,7 +12,7 @@ mkRosPackage rec {
   src = ./.;
 
   propagatedBuildInputs = with python3Packages; [
-    robonomics_comm
+    robonomics_comm-nightly
     pinatapy
     sqlalchemy
     psycopg2

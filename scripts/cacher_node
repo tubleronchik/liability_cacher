@@ -59,6 +59,9 @@ class CacherNode:
 
     def incoming_result(self, result: Result):
         rospy.loginfo(result)
+        if result.liability.address == "0x0000000000000000000000000000000000000000":
+            return
+
         q = self.session.query(L).filter(L.address == result.liability.address) #.update({L.result: result.result.multihash})
 
         try:

@@ -5,12 +5,12 @@
 
     <arg name="sentry_key" default="" />
 
-    <node ns="liability_cacher" name="cacher" pkg="liability_cacher" type="cacher_node" output="screen">
+    <node ns="liability_cacher" name="cacher" pkg="liability_cacher" type="cacher_node" output="screen" respawn="true">
         <param name="db_credentials" textfile="$(arg db_credentials)" />
         <param name="sentry_key" value="$(arg sentry_key)" />
     </node>
 
-    <node ns="liability_cacher" name="web_server" pkg="liability_cacher" type="web_server_node" output="screen">
+    <node ns="liability_cacher" name="web_server" pkg="liability_cacher" type="web_server_node" output="screen" respawn="true">
         <param name="db_credentials" textfile="$(arg db_credentials)" />
         <param name="host" value="$(arg host)" />
         <param name="server_port" value="$(arg server_port)" />
