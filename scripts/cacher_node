@@ -8,8 +8,6 @@ import json
 from robonomics_liability.msg import Liability
 from robonomics_msgs.msg import Result
 from ipfs_common.ipfs_rosbag import IpfsRosBag
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
 
 from helpers.models import Liability as L
 from helpers.models import Base, engine, db_session

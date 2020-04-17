@@ -15,6 +15,7 @@ app.add_url_rule(
 
 
 if __name__ == '__main__':
+    rospy.init_node("web_server")
     host = rospy.get_param("/liability_cacher/web_server/host")
     port = rospy.get_param("/liability_cacher/web_server/server_port")
 
