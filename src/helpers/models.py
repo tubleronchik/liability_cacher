@@ -6,10 +6,11 @@ from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
+from sqlalchemy.pool import NullPool
 
 
 Base = declarative_base()
-engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1], echo=True, pool_size=20, max_overflow=-1)
+engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1],  poolclass=NullPool) # echo=True, pool_size=20, max_overflow=-1)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                     autoflush=False,
                                     bind=engine))
