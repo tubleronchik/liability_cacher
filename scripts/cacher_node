@@ -51,9 +51,13 @@ class CacherNode:
                 validatorFee    = liability.validatorFee.uint256
                 )
 
-        self.session.add(l)
-        self.session.commit()
-        rospy.loginfo(l)
+        try:
+            self.session.add(l)
+            self.session.commit()
+            rospy.loginfo(l)
+        except:
+            self.session.rollback()
+            rospy.logerr("Didn't commit liability")
 
     def incoming_result(self, result: Result):
         rospy.loginfo(result)
@@ -67,7 +71,7 @@ class CacherNode:
             rm = RM(l.model, model_data = l.model_data)
             q.update({L.result: result.result.multihash, L.result_data: rm.result(result.result)})
         except:
-            print("No results")
+            rospy.logerr("No results")
 
         self.session.commit()
 
