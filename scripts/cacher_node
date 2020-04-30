@@ -87,7 +87,7 @@ class CacherNode:
 
         rl = read_liability(ReadLiabilityRequest(Address(liability.data))).liability
 
-        rm = RM(liability.model.multihash)
+        rm = RM(rl.model.multihash)
 
         updated = L(
                 address         = rl.address.address,
