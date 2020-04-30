@@ -81,6 +81,7 @@ class CacherNode:
         self.session.commit()
 
     def update_liability(self, liability: LiabilityAddress):
+        rospy.loginfo("Updating...")
         rospy.wait_for_service("/liability/read")
         read_liability = rospy.ServiceProxy("/liability/read", ReadLiability)
 
@@ -88,26 +89,35 @@ class CacherNode:
 
         rm = RM(liability.model.multihash)
 
-        l = L(
-                address         = liability.address.address,
-                model           = liability.model.multihash,
+        updated = L(
+                address         = rl.address.address,
+                model           = rl.model.multihash,
                 model_data      = rm.model_data,
-                objective       = liability.objective.multihash,
-                objective_data  = rm.objective(liability.objective),
-                promisee        = liability.promisee.address,
-                promisor        = liability.promisor.address,
-                lighthouse      = liability.lighthouse.address,
-                token           = liability.token.address,
-                cost            = liability.cost.uint256,
-                validator       = liability.validator.address,
-                validatorFee    = liability.validatorFee.uint256
+                objective       = rl.objective.multihash,
+                objective_data  = rm.objective(rl.objective),
+                promisee        = rl.promisee.address,
+                promisor        = rl.promisor.address,
+                lighthouse      = rl.lighthouse.address,
+                token           = rl.token.address,
+                cost            = rl.cost.uint256,
+                validator       = rl.validator.address,
+                validatorFee    = rl.validatorFee.uint256
                 )
 
         q = self.session.query(L).filter(L.address == rl.address.address)
 
         try:
             l = q.one()
-            q.update(l)
+            q.update({
+                L.model: updated.model,
+                L.model_data: updated.model_data,
+                L.objective: updated.objective,
+                L.objective_data: updated.objective_data,
+                L.promisee: updated.promisee,
+                L.promisor: updated.promisor,
+                L.lighthouse: updated.lighthouse,
+                L.token: updated.token
+                })
             self.session.commit()
         except Exception as e:
             self.session.rollback()
