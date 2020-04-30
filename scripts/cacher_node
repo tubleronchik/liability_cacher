@@ -88,6 +88,7 @@ class CacherNode:
         rl = read_liability(ReadLiabilityRequest(Address(liability.data))).liability
 
         rm = RM(rl.model.multihash)
+        resultm = RM(rl.model.multihash, rm.model_data)
 
         updated = L(
                 address         = rl.address.address,
@@ -100,6 +101,8 @@ class CacherNode:
                 lighthouse      = rl.lighthouse.address,
                 token           = rl.token.address,
                 cost            = rl.cost.uint256,
+                result          = rl.result.multihash,
+                result_data     = resultm.result(rl.result.multihash),
                 validator       = rl.validator.address,
                 validatorFee    = rl.validatorFee.uint256
                 )
@@ -116,7 +119,9 @@ class CacherNode:
                 L.promisee: updated.promisee,
                 L.promisor: updated.promisor,
                 L.lighthouse: updated.lighthouse,
-                L.token: updated.token
+                L.token: updated.token,
+                L.result: updated.result,
+                L.result_data: updated.result_data
                 })
             self.session.commit()
         except Exception as e:
