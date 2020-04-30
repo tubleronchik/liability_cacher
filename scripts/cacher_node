@@ -102,7 +102,7 @@ class CacherNode:
                 token           = rl.token.address,
                 cost            = rl.cost.uint256,
                 result          = rl.result.multihash,
-                result_data     = resultm.result(rl.result.multihash),
+                result_data     = resultm.result(rl.result),
                 validator       = rl.validator.address,
                 validatorFee    = rl.validatorFee.uint256
                 )
