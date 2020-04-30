@@ -3,9 +3,17 @@ project(liability_cacher)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  message_generation
 )
 
 catkin_python_setup()
+
+add_service_files(
+    FILES
+	LiabilityAddress.srv
+)
+
+generate_messages()
 
 catkin_package()
 

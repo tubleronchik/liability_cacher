@@ -7,8 +7,11 @@ import json
 
 from robonomics_liability.msg import Liability
 from robonomics_msgs.msg import Result
+from ethereum_common.msg import Address
+from robonomics_liability.srv import ReadLiability, ReadLiabilityRequest
 from ipfs_common.ipfs_rosbag import IpfsRosBag
 
+from liability_cacher.srv import LiabilityAddress, LiabilityAddressResponse
 from helpers.models import Liability as L
 from helpers.models import Base, engine, db_session
 from helpers.ipfs import ipfs_download
@@ -28,6 +31,8 @@ class CacherNode:
         # Database
         Base.metadata.create_all(engine)
         self.session = db_session()
+
+        rospy.Service("update", LiabilityAddress, self.update_liability)
 
         rospy.loginfo("Cacher node is launched!")
 
@@ -55,9 +60,9 @@ class CacherNode:
             self.session.add(l)
             self.session.commit()
             rospy.loginfo(l)
-        except:
+        except Exception as e:
             self.session.rollback()
-            rospy.logerr("Didn't commit liability")
+            rospy.logerr("Didn't commit liability: {}".format(e))
 
     def incoming_result(self, result: Result):
         rospy.loginfo(result)
@@ -70,10 +75,45 @@ class CacherNode:
             l = q.one()
             rm = RM(l.model, model_data = l.model_data)
             q.update({L.result: result.result.multihash, L.result_data: rm.result(result.result)})
-        except:
-            rospy.logerr("No results")
+        except Exception as e:
+            rospy.logerr("No results: {}".format(e))
 
         self.session.commit()
+
+    def update_liability(self, liability: LiabilityAddress):
+        rospy.wait_for_service("/liability/read")
+        read_liability = rospy.ServiceProxy("/liability/read", ReadLiability)
+
+        rl = read_liability(ReadLiabilityRequest(Address(liability.data))).liability
+
+        rm = RM(liability.model.multihash)
+
+        l = L(
+                address         = liability.address.address,
+                model           = liability.model.multihash,
+                model_data      = rm.model_data,
+                objective       = liability.objective.multihash,
+                objective_data  = rm.objective(liability.objective),
+                promisee        = liability.promisee.address,
+                promisor        = liability.promisor.address,
+                lighthouse      = liability.lighthouse.address,
+                token           = liability.token.address,
+                cost            = liability.cost.uint256,
+                validator       = liability.validator.address,
+                validatorFee    = liability.validatorFee.uint256
+                )
+
+        q = self.session.query(L).filter(L.address == rl.address.address)
+
+        try:
+            l = q.one()
+            q.update(l)
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            rospy.logerr("Didn't update: {}".format(e))
+
+        return LiabilityAddressResponse()
 
     def spin(self):
         rospy.spin()
