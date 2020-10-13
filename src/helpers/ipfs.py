@@ -6,17 +6,14 @@ from urllib.parse import urlparse
 from tempfile import gettempdir
 
 
-IPFS_PROVIDER = rospy.get_param("/liability/listener/ipfs_http_provider", "http://127.0.0.1:5001")
+IPFS_PROVIDER = rospy.get_param("/liability/listener/ipfs_http_provider", "/ip4/127.0.0.1/tcp/5001/http")
 
-def build_client(provider_endpoint):
-    rospy.loginfo("Build IPFS client: %s", provider_endpoint)
-    ipfs_url = urlparse(provider_endpoint)
-    ipfs_netloc = ipfs_url.netloc.split(':')
+def build_client():
+    rospy.loginfo("Build IPFS client: %s", IPFS_PROVIDER)
     no_read_timeout = Timeout(read=None)
-    return ipfshttpclient.connect("/dns/{0}/tcp/{1}/{2}".format(ipfs_netloc[0], ipfs_netloc[1], ipfs_url.scheme),
-                                  session=True, timeout=no_read_timeout)
+    return ipfshttpclient.connect(IPFS_PROVIDER, session=True, timeout=no_read_timeout)
 
-ipfs_client = build_client(IPFS_PROVIDER)
+ipfs_client = build_client()
 
 def ipfs_download(ipfs_hash: str, mode: str = "r") -> str:
     tempdir = gettempdir()
