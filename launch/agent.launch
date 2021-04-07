@@ -16,4 +16,7 @@
         <param name="server_port" value="$(arg server_port)" />
     </node>
 
+    <node ns="liability_cacher" name="datalog_cacher" pkg="liability_cacher" type="datalog_cacher" output="screen" respawn="true">
+    </node>
+
 </launch>

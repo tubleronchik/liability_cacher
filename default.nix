@@ -16,7 +16,7 @@ mkRosPackage rec {
     pinatapy
     sqlalchemy
     psycopg2
-    graphene
+    graphene_2_1_8
     flask
     flask-graphql
     flask-cors
@@ -24,6 +24,8 @@ mkRosPackage rec {
     graphene-sqlalchemy-filter
     ipfshttpclient
     sentry-sdk
+    substrate-interface
+    xxhash
   ];
 
   meta = with stdenv.lib; {
