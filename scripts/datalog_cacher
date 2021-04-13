@@ -2,13 +2,15 @@
 import time
 from substrateinterface import SubstrateInterface, Keypair
 import rospy
-import ipfshttpclient as ipfs
+#import ipfshttpclient as ipfs
 import json
 
 from ipfs_common.ipfs_rosbag import IpfsRosBag
+from ipfs_common.msg import Multihash
 from helpers.models import Liability as L
 from helpers import ipfs
 from helpers.models import Base, engine, db_session
+from helpers.robonomics_model import RobonomicsModel as RM
 
 class DatalogCacher:
 
@@ -56,6 +58,8 @@ class DatalogCacher:
         self.validator = "0x0000000000000000000000000000000000000000"
         self.validatorFee = "0"
         self.token = "0x668B3a6F9b6C4a2759Fa3912D0a59f39d1F0f0B0"
+        self.model_data = ipfs.ipfs_download(self.model)
+        # print(self.model_data)
 
     def datalog_listener(self):
 
@@ -73,47 +77,50 @@ class DatalogCacher:
             for e in events:
                 if e.value["event_id"] == "NewRecord":
                     print(f'new record {e}')
-                    print(e.params)
+                    #print(e.params)
                     if any(x in e.params for x in self.agent_public_keys):
                         for p in e.params:
                             if p["type"] == "Record":
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
-                                
-                                data = IpfsRosBag(multihash=ipfs_hash)
+                                #print(p["value"])
+                                #print(type(ipfs_hash)) 
+                                data = IpfsRosBag(multihash=Multihash(self.ipfs_hash)).messages
                                 print(data)
-                                json_data = json.dumps(data)
-                                self.update_cacher(json_data)
+                                #json_data = json.dumps(data)
+                                self.update_cacher(data)
 
             time.sleep(1.5)
 
     def update_cacher(self, data):
-        updated_data = L(
-                address         = self.agents[0],
-                model           = self.model,
-                model_data      = ipfs.ipfs_download(self.model),
-                objective       = self.ipfs_hash,
-                objective_data  = data,
-                promisee        = self.agents[0],
-                promisor        = self.agents[0],
-                lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
-                token           = self.token,
-                cost            = 100,
-                result          = self.ipfs_hash,
-                result_data     = data,
-                validator       = self.validator,
-                validatorFee    = self.validatorFee
-        )
-        rospy.loginfo(f"updated_data {updated_data}")
+    rm = RM(self.ipfs_hash)
+    print(f'rm {rm.objective(Multihash(self.ipfs_hash))}')
+    updated_data = L(
+            address         = self.agents[0],
+            model           = self.model,
+            model_data      = self.model_data,
+            objective       = str(self.ipfs_hash),
+            objective_data  = str(data),
+            promisee        = self.agents[0],
+            promisor        = self.agents[0],
+            lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
+            token           = self.token,
+            cost            = 100,
+            result          = self.ipfs_hash,
+            result_data     = data,
+            validator       = self.validator,
+            validatorFee    = self.validatorFee
+    )
+    rospy.loginfo(f"updated_data {updated_data}")
 
-        try:
-            self.session.add(l)
-            self.session.commit()
-            rospy.loginfo(updated_data)
+    try:
+        self.session.add(l)
+        self.session.commit()
+        rospy.loginfo(updated_data)
 
-        except Exception as e:
-            self.session.rollback()
-            rospy.logerr("Didn't commit datalog data: {}".format(e))
+    except Exception as e:
+        self.session.rollback()
+        rospy.logerr("Didn't commit datalog data: {}".format(e))
     
 
 
