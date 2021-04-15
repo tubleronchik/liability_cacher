@@ -21,6 +21,7 @@ catkin_install_python(
     PROGRAMS
         scripts/cacher_node
 		scripts/web_server_node
+        scripts/datalog_cacher
     DESTINATION
         ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

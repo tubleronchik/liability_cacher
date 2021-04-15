@@ -2,6 +2,7 @@
     <arg name="db_credentials" default="" />
     <arg name="server_port" default="11234" />
     <arg name="host" default="0.0.0.0" />
+    <arg name="endpoint" default="ws://127.0.0.1:9944"/>
 
     <arg name="sentry_key" default="" />
 
@@ -16,4 +17,9 @@
         <param name="server_port" value="$(arg server_port)" />
     </node>
 
+    <node ns="liability_cacher" name="datalog_cacher" pkg="liability_cacher" type="datalog_cacher" output="screen" respawn="true">
+        <param name="endpoint" value="$(arg endpoint)"/>
+    </node>
+
 </launch>
+
