@@ -88,26 +88,26 @@ class DatalogCacher:
             time.sleep(1.5)
 
     def update_cacher(self):
-    rm = RM(self.model)
-    print(f'rm {rm.objective(Multihash(self.ipfs_hash))}')
-    data = rm.objective(Multihash(self.ipfs_hash))
-    updated_data = L(
-            address         = self.agents[0],
-            model           = self.model,
-            model_data      = self.model_data,
-            objective       = str(self.ipfs_hash),
-            objective_data  = data,
-            promisee        = self.agents[0],
-            promisor        = self.agents[0],
-            lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
-            token           = self.token,
-            cost            = 100,
-            result          = self.ipfs_hash,
-            result_data     = data,
-            validator       = self.validator,
-            validatorFee    = self.validatorFee
-    )
-    rospy.loginfo(f"updated_data {updated_data}")
+        rm = RM(self.model)
+        print(f'rm {rm.objective(Multihash(self.ipfs_hash))}')
+        data = rm.objective(Multihash(self.ipfs_hash))
+        updated_data = L(
+                address         = self.agents[0],
+                model           = self.model,
+                model_data      = self.model_data,
+                objective       = str(self.ipfs_hash),
+                objective_data  = data,
+                promisee        = self.agents[0],
+                promisor        = self.agents[0],
+                lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
+                token           = self.token,
+                cost            = 100,
+                result          = self.ipfs_hash,
+                result_data     = data,
+                validator       = self.validator,
+                validatorFee    = self.validatorFee
+        )
+        rospy.loginfo(f"updated_data {updated_data}")
 
     try:
         self.session.add(updated_data)
