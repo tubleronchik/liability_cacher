@@ -109,14 +109,14 @@ class DatalogCacher:
         )
         rospy.loginfo(f"updated_data {updated_data}")
 
-    try:
-        self.session.add(updated_data)
-        self.session.commit()
-        rospy.loginfo(updated_data)
+        try:
+            self.session.add(updated_data)
+            self.session.commit()
+            rospy.loginfo(updated_data)
 
-    except Exception as e:
-        self.session.rollback()
-        rospy.logerr("Didn't commit datalog data: {}".format(e))
+        except Exception as e:
+            self.session.rollback()
+            rospy.logerr("Didn't commit datalog data: {}".format(e))
     
 
 
