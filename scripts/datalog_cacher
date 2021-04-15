@@ -28,7 +28,7 @@ class DatalogCacher:
 
         try:
             self.substrate = SubstrateInterface(
-                url="ws://127.0.0.1:9944",
+                url=rospy.get_param("/liability_cacher/datalog_cacher/endpoint"),
                 ss58_format=42,
                 type_registry={
                     'types': {
@@ -83,24 +83,20 @@ class DatalogCacher:
                             if p["type"] == "Record":
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
-                                #print(p["value"])
-                                #print(type(ipfs_hash)) 
-                                data = IpfsRosBag(multihash=Multihash(self.ipfs_hash)).messages
-                                print(data)
-                                #json_data = json.dumps(data)
-                                self.update_cacher(data)
+                                self.update_cacher()
 
             time.sleep(1.5)
 
-    def update_cacher(self, data):
-    rm = RM(self.ipfs_hash)
+    def update_cacher(self):
+    rm = RM(self.model)
     print(f'rm {rm.objective(Multihash(self.ipfs_hash))}')
+    data = rm.objective(Multihash(self.ipfs_hash))
     updated_data = L(
             address         = self.agents[0],
             model           = self.model,
             model_data      = self.model_data,
             objective       = str(self.ipfs_hash),
-            objective_data  = str(data),
+            objective_data  = data,
             promisee        = self.agents[0],
             promisor        = self.agents[0],
             lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
@@ -114,7 +110,7 @@ class DatalogCacher:
     rospy.loginfo(f"updated_data {updated_data}")
 
     try:
-        self.session.add(l)
+        self.session.add(updated_data)
         self.session.commit()
         rospy.loginfo(updated_data)
 
