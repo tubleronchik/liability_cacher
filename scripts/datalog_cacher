@@ -62,9 +62,9 @@ class DatalogCacher:
 
     def datalog_listener(self):
 
-        #for a in self.agents:
-        kp = Keypair(ss58_address=a)
-        self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
+        for a in self.agents:
+            kp = Keypair(ss58_address=a)
+            self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
 
         print(f"Public keys: {self.agent_public_keys}")
 
@@ -97,8 +97,8 @@ class DatalogCacher:
                 model_data      = self.model_data,
                 objective       = str(self.ipfs_hash),
                 objective_data  = data,
-                promisee        = self.agents,
-                promisor        = self.agents,
+                promisee        = self.agents[0],
+                promisor        = self.agents[0],
                 lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
                 token           = self.token,
                 cost            = 100,
