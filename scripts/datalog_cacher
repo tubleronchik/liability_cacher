@@ -62,9 +62,9 @@ class DatalogCacher:
 
     def datalog_listener(self):
 
-        for a in self.agents:
-            kp = Keypair(ss58_address=a)
-            self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
+        #for a in self.agents:
+        kp = Keypair(ss58_address=a)
+        self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
 
         print(f"Public keys: {self.agent_public_keys}")
 
