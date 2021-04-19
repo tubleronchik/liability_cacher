@@ -46,7 +46,7 @@ class DatalogCacher:
             print("⚠️ No local Substrate node running, try running 'start_local_substrate_node.sh' first")
             exit()
 
-        self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agent")
+        self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agents")
 
         self.agent_public_keys = [
 

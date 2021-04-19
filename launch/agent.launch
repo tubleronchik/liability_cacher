@@ -3,7 +3,7 @@
     <arg name="server_port" default="11234" />
     <arg name="host" default="0.0.0.0" />
     <arg name="endpoint" default="ws://127.0.0.1:9944"/>
-    <arg name="agent" default="[4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT]"/>
+    <arg name="agents" default="[4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT]"/>
                                
 
     <arg name="sentry_key" default="" />
