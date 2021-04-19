@@ -30,6 +30,7 @@ class DatalogCacher:
             self.substrate = SubstrateInterface(
                 url=rospy.get_param("/liability_cacher/datalog_cacher/endpoint"),
                 ss58_format=42,
+                type_registry_preset='substrate-node-template',
                 type_registry={
                     'types': {
                         "Record": "Vec<u8>",
@@ -38,7 +39,7 @@ class DatalogCacher:
                         "EconomicalParam": "{}",
                         "ProofParam": "MultiSignature",
                         "LiabilityIndex": "u64",
-                        "BlockLength": "(u32,u32,u32)"
+                        "BlockLength": "(u64)"
                     }
                 }
             )
