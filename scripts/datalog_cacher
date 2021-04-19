@@ -46,9 +46,7 @@ class DatalogCacher:
             print("⚠️ No local Substrate node running, try running 'start_local_substrate_node.sh' first")
             exit()
 
-        self.agents = [
-            "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ"
-        ]
+        self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agent")
 
         self.agent_public_keys = [
 
@@ -60,12 +58,13 @@ class DatalogCacher:
         self.token = "0x668B3a6F9b6C4a2759Fa3912D0a59f39d1F0f0B0"
         self.model_data = ipfs.ipfs_download(self.model)
         # print(self.model_data)
+        self.address = 0
 
     def datalog_listener(self):
 
-        for a in self.agents:
-            kp = Keypair(ss58_address=a)
-            self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
+        #for a in self.agents:
+        kp = Keypair(ss58_address=a)
+        self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
 
         print(f"Public keys: {self.agent_public_keys}")
 
@@ -83,6 +82,7 @@ class DatalogCacher:
                             if p["type"] == "Record":
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
+                                self.address = ch
                                 self.update_cacher()
 
             time.sleep(1.5)
@@ -92,13 +92,13 @@ class DatalogCacher:
         print(f'rm {rm.objective(Multihash(self.ipfs_hash))}')
         data = rm.objective(Multihash(self.ipfs_hash))
         updated_data = L(
-                address         = self.agents[0],
+                address         = self.address,
                 model           = self.model,
                 model_data      = self.model_data,
                 objective       = str(self.ipfs_hash),
                 objective_data  = data,
-                promisee        = self.agents[0],
-                promisor        = self.agents[0],
+                promisee        = self.agents,
+                promisor        = self.agents,
                 lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
                 token           = self.token,
                 cost            = 100,
