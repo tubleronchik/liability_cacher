@@ -46,11 +46,19 @@ class DatalogCacher:
             print("⚠️ No local Substrate node running, try running 'start_local_substrate_node.sh' first")
             exit()
 
-        self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agents")
+        #self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agents")
+
+        self.agents = [
+            "4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT", 
+            "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ", 
+            "4H8BrWPExhaBNw223Le61dowXvv4615kU3EPtGSxFLP9VM8L"
+            ]
 
         self.agent_public_keys = [
 
         ]
+
+        self.addresses_converter = {}
 
         self.model = "QmRHLgQVJK9r9ioQHzNXgSFBvYwceWMm5EQeKUJrvR8jUW"
         self.validator = "0x0000000000000000000000000000000000000000"
@@ -59,14 +67,17 @@ class DatalogCacher:
         self.model_data = ipfs.ipfs_download(self.model)
         # print(self.model_data)
         self.address = 0
+        self.promisee = ""
 
     def datalog_listener(self):
 
         for a in self.agents:
             kp = Keypair(ss58_address=a)
             self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
+            self.addresses_converter.update({kp.public_key: a})
 
         print(f"Public keys: {self.agent_public_keys}")
+        print(f"Converter: {self.addresses_converter}")
 
         while True:
             ch = self.substrate.get_chain_head()
@@ -79,11 +90,18 @@ class DatalogCacher:
                     #print(e.params)
                     if any(x in e.params for x in self.agent_public_keys):
                         for p in e.params:
+                            if p["type"] == "AccountId":
+                                addr_hex = p["value"]
+                                #print(f'hex {addr_hex}')
+
                             if p["type"] == "Record":
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
                                 self.address = ch
+                                self.promisee = self.addresses_converter[addr_hex]
+                                print(f"promisee: {self.promisee}")
                                 self.update_cacher()
+
 
             time.sleep(1.5)
 
@@ -97,8 +115,8 @@ class DatalogCacher:
                 model_data      = self.model_data,
                 objective       = str(self.ipfs_hash),
                 objective_data  = data,
-                promisee        = self.agents[0],
-                promisor        = self.agents[0],
+                promisee        = self.promisee,
+                promisor        = self.promisee,
                 lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
                 token           = self.token,
                 cost            = 100,
