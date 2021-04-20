@@ -20,7 +20,7 @@ def ipfs_download(ipfs_hash: str, mode: str = "r") -> str:
     os.chdir(tempdir)
 
     rospy.loginfo(f"Downloading {ipfs_hash}")
-    ipfs_client.get(ipfs_hash, timeout=30)
+    ipfs_client.get(ipfs_hash, timeout=60)
     with open(ipfs_hash, mode) as f:
         return f.read()
 

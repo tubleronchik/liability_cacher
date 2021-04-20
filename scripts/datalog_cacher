@@ -38,8 +38,7 @@ class DatalogCacher:
                         "TechnicalReport": "Vec<u8>",
                         "EconomicalParam": "{}",
                         "ProofParam": "MultiSignature",
-                        "LiabilityIndex": "u64",
-                        "BlockLength": "(u64)"
+                        "LiabilityIndex": "u64"
                     }
                 }
             )
