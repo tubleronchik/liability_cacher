@@ -103,12 +103,13 @@ class DatalogCacher:
                                 self.update_cacher()
 
 
-            time.sleep(1.5)
+            time.sleep(5)
 
     def update_cacher(self):
         rm = RM(self.model)
-        print(f'rm {rm.objective(Multihash(self.ipfs_hash))}')
-        data = rm.objective(Multihash(self.ipfs_hash))
+        time.sleep(10)
+        # print(f'rm {rm.objective(self.ipfs_hash)}')
+        data = rm.objective(pinata_hash = str(self.ipfs_hash))
         updated_data = L(
                 address         = self.address,
                 model           = self.model,

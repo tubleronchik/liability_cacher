@@ -6,6 +6,7 @@ from ipfs_common.msg import Multihash
 
 from ipfs_common.ipfs_rosbag import IpfsRosBag
 from helpers.ipfs import ipfs_download
+from helpers.pinata import pinata_download, pinata_rosbag
 
 class RobonomicsModel:
     def __init__(self, ipfs_hash: str, model_data: str = None):
@@ -30,12 +31,17 @@ class RobonomicsModel:
         print(f"Data: {data}\nValid: {self.valid}")
         return data
 
-    def objective(self, objective_hash: Multihash) -> str:
+    def objective(self, objective_hash: Multihash = None, pinata_hash: str = None) -> str:
         data = {}
         if self.valid:
-            bag = IpfsRosBag(multihash = objective_hash)
 
-            for kbag, vbag in bag.messages.items():
+            if objective_hash is not None:
+                bag = IpfsRosBag(multihash = objective_hash)
+                messages = bag.messages
+            elif pinata_hash is not None:
+                messages, bag = pinata_rosbag(pinata_hash)
+
+            for kbag, vbag in messages.items():
                 print(f"{kbag} -> {vbag}")
                 ttype = self._topic_type(kbag)
 
@@ -101,6 +107,14 @@ class RobonomicsModel:
             data = base64.b64encode(data).decode('utf-8')
         except:
             data = ""
+
+        if data == "":
+            try:
+                data = pinata_download(ipfs_hash, "rb")
+                data = base64.b64encode(data).decode('utf-8')
+            except:
+                data = ""
+
 
         return data
 
