@@ -41,7 +41,7 @@ class RobonomicsModel:
             elif pinata_hash is not None:
                 messages, bag = pinata_rosbag(pinata_hash)
 
-            for kbag, vbag in bag.messages.items():
+            for kbag, vbag in messages.items():
                 print(f"{kbag} -> {vbag}")
                 ttype = self._topic_type(kbag)
 
