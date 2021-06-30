@@ -10,7 +10,7 @@ from sqlalchemy.pool import NullPool
 
 
 Base = declarative_base()
-engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1],  poolclass=NullPool) # echo=True, pool_size=20, max_overflow=-1)
+engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1], echo=True, pool_size=20, max_overflow=-1)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                     autoflush=False,
                                     bind=engine))

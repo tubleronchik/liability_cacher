@@ -106,15 +106,10 @@ class RobonomicsModel:
             data = ipfs_download(ipfs_hash, "rb")
             data = base64.b64encode(data).decode('utf-8')
         except:
-            data = ""
-
-        if data == "":
             try:
                 data = pinata_download(ipfs_hash, "rb")
                 data = base64.b64encode(data).decode('utf-8')
             except:
                 data = ""
 
-
         return data
-

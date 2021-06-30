@@ -1,4 +1,4 @@
-{ nixpkgs ? import (builtins.fetchTarball https://github.com/airalab/airapkgs/archive/9892c3d0901d29419f6b19e8f7bc175169e76b5b.tar.gz)
+{ nixpkgs ? import (builtins.fetchTarball https://github.com/airalab/airapkgs/archive/14682605dee431671acfcf84f4d6fa3a26dd0e3f.tar.gz)
 , system ? builtins.currentSystem
 }:
 
