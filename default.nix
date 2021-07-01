@@ -24,7 +24,7 @@ mkRosPackage rec {
     graphene-sqlalchemy-filter
     ipfshttpclient
     sentry-sdk
-    substrate-interface
+    substrate-interface_0_13_8
     xxhash
   ];
 

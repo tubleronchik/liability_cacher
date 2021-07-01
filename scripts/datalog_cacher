@@ -51,7 +51,8 @@ class DatalogCacher:
         self.agents = [
             "4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT", 
             "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ", 
-            "4H8BrWPExhaBNw223Le61dowXvv4615kU3EPtGSxFLP9VM8L"
+            "4H8BrWPExhaBNw223Le61dowXvv4615kU3EPtGSxFLP9VM8L",
+            "4HTMGNshq7FvwVvPEWAYfMyHDQKZ9G3uivXHHp2gQNGz7374"
             ]
 
         self.agent_public_keys = [
@@ -73,7 +74,7 @@ class DatalogCacher:
 
         for a in self.agents:
             kp = Keypair(ss58_address=a)
-            self.agent_public_keys.append({'type': 'AccountId', 'value': kp.public_key})
+            self.agent_public_keys.append({'type': 'AccountId', 'value': a})
             self.addresses_converter.update({kp.public_key: a})
 
         print(f"Public keys: {self.agent_public_keys}")
@@ -82,8 +83,9 @@ class DatalogCacher:
         while True:
             ch = self.substrate.get_chain_head()
             print(f"Chain head: {ch}")
-
+            
             events = self.substrate.get_events(ch)
+            
             for e in events:
                 if e.value["event_id"] == "NewRecord":
                     print(f'new record {e}')
@@ -91,19 +93,15 @@ class DatalogCacher:
                     if any(x in e.params for x in self.agent_public_keys):
                         for p in e.params:
                             if p["type"] == "AccountId":
-                                addr_hex = p["value"]
-                                #print(f'hex {addr_hex}')
-
+                                self.promisee = p["value"]
                             if p["type"] == "Record":
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
                                 self.address = ch
-                                self.promisee = self.addresses_converter[addr_hex]
-                                print(f"promisee: {self.promisee}")
                                 self.update_cacher()
+            
 
-
-            time.sleep(5)
+            time.sleep(12)
 
     def update_cacher(self):
         rm = RM(self.model)
@@ -141,3 +139,4 @@ class DatalogCacher:
 
 if __name__ == "__main__":
     DatalogCacher().datalog_listener()
+
