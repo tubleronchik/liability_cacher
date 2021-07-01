@@ -29,7 +29,7 @@ class DatalogCacher:
         try:
             self.substrate = SubstrateInterface(
                 url=rospy.get_param("/liability_cacher/datalog_cacher/endpoint"),
-                ss58_format=42,
+                ss58_format=32,
                 type_registry_preset='substrate-node-template',
                 type_registry={
                     'types': {
