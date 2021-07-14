@@ -2,16 +2,16 @@ import rospy
 import json
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey, Sequence
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from sqlalchemy.pool import NullPool
 
-
+#seq = Sequence('id',start=190)
 Base = declarative_base()
-engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1], echo=True, pool_size=20, max_overflow=-1)
-db_session = scoped_session(sessionmaker(autocommit=False,
+engine = create_engine(rospy.get_param("/liability_cacher/cacher/db_credentials")[:-1], poolclass=NullPool)
+db_session = scoped_session(sessionmaker(autocommit=True,
                                     autoflush=False,
                                     bind=engine))
 Base.query = db_session.query_property()
@@ -20,7 +20,8 @@ Base.query = db_session.query_property()
 class Liability(Base):
     __tablename__ = "liabilities"
 
-    id = Column(Integer, primary_key=True)
+#    seq = Sequence('id', start=190)
+    id = Column(Integer, autoincrement=True, primary_key=True)
 
     address         = Column(String, unique=True)
     model           = Column(String)
