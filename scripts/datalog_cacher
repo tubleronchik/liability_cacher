@@ -128,7 +128,7 @@ class DatalogCacher:
 
         try:
             self.session.add(updated_data)
-            self.session.commit()
+            self.session.flush()
             rospy.loginfo(updated_data)
 
         except Exception as e:
