@@ -1,4 +1,5 @@
 { stdenv
+, lib
 , mkRosPackage
 , robonomics_comm-nightly
 , python3Packages
@@ -28,7 +29,7 @@ mkRosPackage rec {
     xxhash
   ];
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     description = "Liability Cacher";
     homepage = http://github.com/vourhey/liability_cacher;
     license = licenses.bsd3;

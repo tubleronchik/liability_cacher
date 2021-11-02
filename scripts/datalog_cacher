@@ -11,6 +11,7 @@ from helpers.models import Liability as L
 from helpers import ipfs
 from helpers.models import Base, engine, db_session
 from helpers.robonomics_model import RobonomicsModel as RM
+from src.helpers import DataBase
 
 class DatalogCacher:
 
@@ -25,6 +26,8 @@ class DatalogCacher:
 
         Base.metadata.create_all(engine)
         self.session = db_session()
+        self.db = DataBase()
+        self.db.create_table()
 
         try:
             self.substrate = SubstrateInterface(
@@ -52,7 +55,10 @@ class DatalogCacher:
             "4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT", 
             "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ", 
             "4H8BrWPExhaBNw223Le61dowXvv4615kU3EPtGSxFLP9VM8L",
-            "4HTMGNshq7FvwVvPEWAYfMyHDQKZ9G3uivXHHp2gQNGz7374"
+            "4HTMGNshq7FvwVvPEWAYfMyHDQKZ9G3uivXHHp2gQNGz7374",
+            "4DP6EsaLHthfP3VvyaJCLRC6a9S1yPcmNppYAche537uUzcd",
+            "4FH8nthjSpQdTdUMoq5xKoeZmwnNaRKL5Vm2qvo5VHQG6X3X"
+
             ]
 
         self.agent_public_keys = [
@@ -98,6 +104,7 @@ class DatalogCacher:
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
                                 self.address = ch
+                                self.db.add_data("not upload",  self.ipfs_hash, time.time())
                                 self.update_cacher()
             
 
@@ -130,6 +137,8 @@ class DatalogCacher:
             self.session.add(updated_data)
             self.session.flush()
             rospy.loginfo(updated_data)
+            self.db.update_status("upload", self.ipfs_hash)
+            rospy.loginfo("data add to the DB")
 
         except Exception as e:
             self.session.rollback()

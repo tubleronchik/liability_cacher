@@ -20,6 +20,7 @@
 
     <node ns="liability_cacher" name="datalog_cacher" pkg="liability_cacher" type="datalog_cacher" output="screen" respawn="true">
         <param name="endpoint" value="$(arg endpoint)" />
+        <param name="db_path" value="$(arg db_path)" />
     </node>
 
 </launch>
