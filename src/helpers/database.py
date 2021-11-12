@@ -11,7 +11,7 @@ class DataBase():
  
     
     def connection(self):
-        db_file = rospy.get_param("/liability_cacher/datalog_cacher/db_path ")
+        db_file = rospy.get_param("/liability_cacher/datalog_cacher/db_path")
         try:
             connection = sqlite3.connect(db_file)
         
@@ -39,7 +39,7 @@ class DataBase():
         with contextlib.closing(connection) as conn: # auto-closes
             with conn: # auto-commits
                 with contextlib.closing(cursor) as cursor: # auto-closes
-                    cursor.execute("INSERT INTO datalog (status, hash, time) VALUES (?, ?, ?, ?)", (status, hash, time))
+                    cursor.execute("INSERT INTO datalog (status, hash, time) VALUES (?, ?, ?)", (status, hash, time))
 
 
     def update_status(self, status, hash):
