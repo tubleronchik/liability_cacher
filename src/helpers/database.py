@@ -6,9 +6,6 @@ import rospy
 
 
 class DataBase():
-    def __init__(self, config: dict):
-        self.config = config
- 
     
     def connection(self):
         db_file = rospy.get_param("/liability_cacher/datalog_cacher/db_path")
