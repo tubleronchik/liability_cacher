@@ -156,6 +156,7 @@ class DatalogCacher:
         
     def spin(self) -> None:
         Thread(target=self.datalog_listener).start()
+        self.watcher()
         
 
 if __name__ == "__main__":
