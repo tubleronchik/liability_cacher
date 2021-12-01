@@ -4,6 +4,7 @@ from substrateinterface import SubstrateInterface, Keypair
 import rospy
 #import ipfshttpclient as ipfs
 import json
+from threading import Thread, Timer
 
 from ipfs_common.ipfs_rosbag import IpfsRosBag
 from ipfs_common.msg import Multihash
@@ -104,29 +105,30 @@ class DatalogCacher:
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
                                 self.address = ch
-                                self.db.add_data("not upload",  self.ipfs_hash, time.time())
+                                self.db.add_data("not upload",  self.ipfs_hash, self.address, 
+                                                self.promisee, time.time())
                                 self.update_cacher()
             
 
             time.sleep(12)
 
-    def update_cacher(self):
+    def update_cacher(self, hash: str = None, address: str = None, promisee: str = None):
         rm = RM(self.model)
         time.sleep(10)
         # print(f'rm {rm.objective(self.ipfs_hash)}')
-        data = rm.objective(pinata_hash = str(self.ipfs_hash))
+        data = rm.objective(pinata_hash = str(hash or self.ipfs_hash))
         updated_data = L(
-                address         = self.address,
+                address         = address or self.address,
                 model           = self.model,
                 model_data      = self.model_data,
-                objective       = str(self.ipfs_hash),
+                objective       = str(hash or self.ipfs_hash),
                 objective_data  = data,
-                promisee        = self.promisee,
-                promisor        = self.promisee,
+                promisee        = promisee or self.promisee,
+                promisor        = promisee or self.promisee,
                 lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
                 token           = self.token,
                 cost            = 100,
-                result          = self.ipfs_hash,
+                result          = hash or self.ipfs_hash,
                 result_data     = data,
                 validator       = self.validator,
                 validatorFee    = self.validatorFee
@@ -144,8 +146,18 @@ class DatalogCacher:
             self.session.rollback()
             rospy.logerr("Didn't commit datalog data: {}".format(e))
     
-
+    def watcher(self) -> None:
+        Timer(interval=3600, function=self.watcher)
+        for data in self.db.checker(time.time()):
+            hash = data[0]
+            address = data[1]
+            promisee = data[2]
+            self.update_cacher(hash, address, promisee)
+        
+    def spin(self) -> None:
+        Thread(target=self.datalog_listener).start()
+        
 
 if __name__ == "__main__":
-    DatalogCacher().datalog_listener()
+    DatalogCacher().spin()
 

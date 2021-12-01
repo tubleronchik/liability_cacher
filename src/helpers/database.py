@@ -26,17 +26,19 @@ class DataBase():
                                                     id integer PRIMARY KEY,
                                                     status text,
                                                     hash text,
+                                                    address text,
+                                                    promisee text
                                                     time real
                             ); """     
         )
 
-    def add_data(self, status, hash, time):
+    def add_data(self, status, hash, address, promisee, time):
         connection = self.connection()
         cursor = connection.cursor()
         with contextlib.closing(connection) as conn: # auto-closes
             with conn: # auto-commits
                 with contextlib.closing(cursor) as cursor: # auto-closes
-                    cursor.execute("INSERT INTO datalog (status, hash, time) VALUES (?, ?, ?)", (status, hash, time))
+                    cursor.execute("INSERT INTO datalog (status, hash, address, promisee, time) VALUES (?, ?, ?, ?, ?)", (status, hash, address, promisee, time))
 
 
     def update_status(self, status, hash):
@@ -52,9 +54,10 @@ class DataBase():
     def checker(self, current_time):
         connection = self.connection()
         cursor = connection.cursor()
-        time = current_time - 86400 # 24hrs
+        time = current_time - 7200 # 2hrs
         with contextlib.closing(connection) as conn: # auto-closes
             with conn: # auto-commits
                 with contextlib.closing(cursor) as cursor: # auto-closes
-                    hashes = cursor.execute("SELECT hash FROM datalog WHERE time < ? AND status='not upload'", (time,)).fetchall()
+                    hashes = cursor.execute("SELECT hash, address, promisee FROM datalog WHERE time < ? AND status='not upload'", (time,)).fetchall()
         return hashes
+
