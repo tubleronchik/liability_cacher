@@ -2,7 +2,8 @@
 import time
 from substrateinterface import SubstrateInterface, Keypair
 import rospy
-#import ipfshttpclient as ipfs
+
+# import ipfshttpclient as ipfs
 import json
 from threading import Thread, Timer
 
@@ -14,8 +15,8 @@ from helpers.models import Base, engine, db_session
 from helpers.robonomics_model import RobonomicsModel as RM
 from helpers import DataBase
 
-class DatalogCacher:
 
+class DatalogCacher:
     def __init__(self):
 
         rospy.init_node("datalog_listener")
@@ -34,37 +35,36 @@ class DatalogCacher:
             self.substrate = SubstrateInterface(
                 url=rospy.get_param("/liability_cacher/datalog_cacher/endpoint"),
                 ss58_format=32,
-                type_registry_preset='substrate-node-template',
+                type_registry_preset="substrate-node-template",
                 type_registry={
-                    'types': {
+                    "types": {
                         "Record": "Vec<u8>",
                         "TechnicalParam": "Vec<u8>",
                         "TechnicalReport": "Vec<u8>",
                         "EconomicalParam": "{}",
                         "ProofParam": "MultiSignature",
-                        "LiabilityIndex": "u64"
+                        "LiabilityIndex": "u64",
                     }
-                }
+                },
             )
         except ConnectionRefusedError:
-            print("⚠️ No local Substrate node running, try running 'start_local_substrate_node.sh' first")
+            print(
+                "⚠️ No local Substrate node running, try running 'start_local_substrate_node.sh' first"
+            )
             exit()
 
-        #self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agents")
+        # self.agents = rospy.get_param("/liability_cacher/datalog_cacher/agents")
 
         self.agents = [
-            "4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT", 
-            "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ", 
+            "4DjohM8jb4frM15ogKtAsyK1XfH6xgSYEpr7qPLcGna8oRrT",
+            "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ",
             "4H8BrWPExhaBNw223Le61dowXvv4615kU3EPtGSxFLP9VM8L",
             "4HTMGNshq7FvwVvPEWAYfMyHDQKZ9G3uivXHHp2gQNGz7374",
             "4DP6EsaLHthfP3VvyaJCLRC6a9S1yPcmNppYAche537uUzcd",
-            "4FH8nthjSpQdTdUMoq5xKoeZmwnNaRKL5Vm2qvo5VHQG6X3X"
-
-            ]
-
-        self.agent_public_keys = [
-
+            "4FH8nthjSpQdTdUMoq5xKoeZmwnNaRKL5Vm2qvo5VHQG6X3X",
         ]
+
+        self.agent_public_keys = []
 
         self.addresses_converter = {}
 
@@ -81,7 +81,7 @@ class DatalogCacher:
 
         for a in self.agents:
             kp = Keypair(ss58_address=a)
-            self.agent_public_keys.append({'type': 'AccountId', 'value': a})
+            self.agent_public_keys.append({"type": "AccountId", "value": a})
             self.addresses_converter.update({kp.public_key: a})
 
         print(f"Public keys: {self.agent_public_keys}")
@@ -90,13 +90,13 @@ class DatalogCacher:
         while True:
             ch = self.substrate.get_chain_head()
             print(f"Chain head: {ch}")
-            
+
             events = self.substrate.get_events(ch)
-            
+
             for e in events:
                 if e.value["event_id"] == "NewRecord":
-                    print(f'new record {e}')
-                    #print(e.params)
+                    print(f"new record {e}")
+                    # print(e.params)
                     if any(x in e.params for x in self.agent_public_keys):
                         for p in e.params:
                             if p["type"] == "AccountId":
@@ -105,33 +105,39 @@ class DatalogCacher:
                                 print(p["value"])
                                 self.ipfs_hash = p["value"]
                                 self.address = ch
-                                self.db.add_data("not upload",  self.ipfs_hash, self.address, 
-                                                self.promisee, time.time())
+                                self.db.add_data(
+                                    "not upload",
+                                    self.ipfs_hash,
+                                    self.address,
+                                    self.promisee,
+                                    time.time(),
+                                )
                                 self.update_cacher()
-            
 
             time.sleep(12)
 
-    def update_cacher(self, hash: str = None, address: str = None, promisee: str = None):
+    def update_cacher(
+        self, hash: str = None, address: str = None, promisee: str = None
+    ):
         rm = RM(self.model)
         time.sleep(10)
         # print(f'rm {rm.objective(self.ipfs_hash)}')
-        data = rm.objective(pinata_hash = str(hash or self.ipfs_hash))
+        data = rm.objective(pinata_hash=str(hash or self.ipfs_hash))
         updated_data = L(
-                address         = address or self.address,
-                model           = self.model,
-                model_data      = self.model_data,
-                objective       = str(hash or self.ipfs_hash),
-                objective_data  = data,
-                promisee        = promisee or self.promisee,
-                promisor        = promisee or self.promisee,
-                lighthouse      = "0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
-                token           = self.token,
-                cost            = 100,
-                result          = hash or self.ipfs_hash,
-                result_data     = data,
-                validator       = self.validator,
-                validatorFee    = self.validatorFee
+            address=address or self.address,
+            model=self.model,
+            model_data=self.model_data,
+            objective=str(hash or self.ipfs_hash),
+            objective_data=data,
+            promisee=promisee or self.promisee,
+            promisor=promisee or self.promisee,
+            lighthouse="0xD40AC7F1e5401e03D00F5aeC1779D8e5Af4CF9f1",
+            token=self.token,
+            cost=100,
+            result=hash or self.ipfs_hash,
+            result_data=data,
+            validator=self.validator,
+            validatorFee=self.validatorFee,
         )
         rospy.loginfo(f"updated_data {updated_data}")
 
@@ -145,20 +151,20 @@ class DatalogCacher:
         except Exception as e:
             self.session.rollback()
             rospy.logerr("Didn't commit datalog data: {}".format(e))
-    
+
     def watcher(self) -> None:
+        rospy.loginfo("Checking DB...")
         Timer(interval=3600, function=self.watcher)
         for data in self.db.checker(time.time()):
             hash = data[0]
             address = data[1]
             promisee = data[2]
             self.update_cacher(hash, address, promisee)
-        
+
     def spin(self) -> None:
         Thread(target=self.datalog_listener).start()
         self.watcher()
-        
+
 
 if __name__ == "__main__":
     DatalogCacher().spin()
-

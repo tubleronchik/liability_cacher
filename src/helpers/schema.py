@@ -11,34 +11,38 @@ class LiabilityFilter(FilterSet):
     class Meta:
         model = LiabilityModel
         fields = {
-                "address":  [...],
-                "model": [...],
-                "objective": [...],
-                "result": [...],
-                "promisee": [...],
-                "promisor": [...],
-                "lighthouse": [...],
-                "token": [...],
-                "cost": [...],
-                "validator": [...],
-                "validatorFee": [...],
-                }
+            "address": [...],
+            "model": [...],
+            "objective": [...],
+            "result": [...],
+            "promisee": [...],
+            "promisor": [...],
+            "lighthouse": [...],
+            "token": [...],
+            "cost": [...],
+            "validator": [...],
+            "validatorFee": [...],
+        }
+
 
 class MyFilterableConnectionField(FilterableConnectionField):
     filters = {LiabilityModel: LiabilityFilter()}
 
+
 class LiabilitySchema(SQLAlchemyObjectType):
     class Meta:
         model = LiabilityModel
-        interfaces = (relay.Node, )
+        interfaces = (relay.Node,)
         connection_field_factory = MyFilterableConnectionField.factory
+
 
 class LiabilityConnection(Connection):
     class Meta:
         node = LiabilitySchema
 
+
 class Query(graphene.ObjectType):
     liabilities = MyFilterableConnectionField(LiabilityConnection)
 
-schema = graphene.Schema(query=Query)
 
+schema = graphene.Schema(query=Query)
